@@ -46,6 +46,8 @@ class SolarSystem
         this.moonTexture = null;
         this.earthAngle = 0.0;
         this.moonAngle = 0.0;
+        this.starCountInput = null;
+        this.updateStarsButton = null;
     }
 
     /*---------------------------------------------------------
@@ -93,25 +95,25 @@ class SolarSystem
         this.EARTH_EARTH_ORBIT_RADIUS = 120;  // smaller orbit so Earth is close to center
         this.EARTH_RADIUS = 20;   // slightly larger for visibility
 
+        
+        this.starCountInput = createInput('100');
+        this.starCountInput.position(this.CANVAS_SIZE + 20, 20);
+
+        this.updateStarsButton = createButton ('Update Stars');
+        this.updateStarsButton.position(this.CANVAS_SIZE + 20, 50);
+        this.updateStarsButton.mousePressed(() => {
+          let newCount = this.starCountInput.value();
+          newCount = int(newCount);
+          this.STAR_COUNT = newCount;
+          this.generateStars();
+
+        });
+
+        
+
+        this.generateStars();
 
 
-        // Generate static star positions
-        for (let i = 0; i < this.STAR_COUNT; i++)
-        {
-            let x = random(-width / 2, width / 2);
-            let y = random(-height / 2, height / 2);
-
-          // if star is too close to the sun try again;
-          let distance = sqrt(x*x + y*y);
-          if (distance < 40) 
-            {
-              i--;
-              continue;
-            }
-
-            let z = random(-300, 300);
-            this.stars.push(createVector(x, y, z));
-        }
 
         noStroke();
         textureMode(NORMAL);
@@ -148,6 +150,28 @@ class SolarSystem
         this.drawSun();
         this.drawEarth();
         this.drawMoon()
+    }
+
+    generateStars()
+    {
+      this.stars = [];
+        // Generate static star positions
+      for (let i = 0; i < this.STAR_COUNT; i++)
+      {
+        let x = random(-width / 2, width / 2);
+        let y = random(-height / 2, height / 2);
+          
+        // if star is too close to the sun try again;
+        let distance = sqrt(x*x + y*y);
+        if (distance < 40) 
+          {
+            i--;
+            continue;
+          }
+
+          let z = random(-300, 300);
+          this.stars.push(createVector(x, y, z));
+      }
     }
 
     /*---------------------------------------------------------
