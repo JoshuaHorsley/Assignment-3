@@ -47,7 +47,9 @@ class SolarSystem
         this.earthAngle = 0.0;
         this.moonAngle = 0.0;
         this.starCountInput = null;
+        this.earthDistanceLable = null;
         this.updateStarsButton = null;
+        this.earthDistanceSlider = null;
     }
 
     /*---------------------------------------------------------
@@ -109,6 +111,11 @@ class SolarSystem
 
         });
 
+        this.earthDistanceLable = createP('Earth Distance from Sun');
+        this.earthDistanceLable.position(this.CANVAS_SIZE +20, 60);
+        this.earthDistanceSlider = createSlider(50, 350, this.EARTH_EARTH_ORBIT_RADIUS)
+        this.earthDistanceSlider.position(this.CANVAS_SIZE + 20, 90);
+
         
 
         this.generateStars();
@@ -131,6 +138,7 @@ class SolarSystem
     {
         this.earthAngle += this.EARTH_ORBIT_SPEED;
         this.moonAngle += this.MOON_ORBIT_SPEED;
+        this.EARTH_ORBIT_RADIUS = this.earthDistanceSlider.value();
     }
 
     /*---------------------------------------------------------
