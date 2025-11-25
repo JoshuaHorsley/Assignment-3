@@ -47,17 +47,19 @@ class SolarSystem
         this.moonTexture = null;
         this.earthAngle = 0.0;
         this.moonAngle = 0.0;
+        this.isPaused = false;
+        this.animationFrame = 0;
 
         // GUI Elements
         this.starCountInput = null;
-        this.earthDistanceLabel = null;
         this.updateStarsButton = null;
+        
         this.earthDistanceSlider = null;
-        this.earthRotationSpeedLabel = null;
         this.earthRotationSpeedSlider = null;
-
-        this.moonDistanceLabel = null;
+        
         this.moonDistanceSlider = null;
+        this.moonRotationSpeedSlider = null;
+
 
         // Custom Planets GUI
         this.customPlanets = [];
@@ -71,7 +73,10 @@ class SolarSystem
         this.planetMoonDistanceSlider = null;
         this.planetMoonOrbitSpeedSlider = null;
         this.createPlanetButton = null;
+        this.removePlanetButton = null;
 
+        this.pauseButton = null;
+        this.resetButton = null;
     }
 
     /*---------------------------------------------------------
@@ -235,8 +240,43 @@ class SolarSystem
 
           this.customPlanets.push(newPlanet);
           console.log('Planet created!', newPlanet);
-
         });
+
+        this.removePlanetButton = createButton('Remove Last Planet');
+        this.removePlanetButton.position(this.CANVAS_SIZE + 20, 750);
+
+        this.removePlanetButton.mousePressed(() => {
+
+          if (this.customPlanets.length > 0) {
+            this.customPlanets.pop();
+            console.log('Planet removed!')
+          }
+         
+        });
+
+        this.pauseButton = createButton('Pause All Rotation');
+        this.pauseButton.position(this.CANVAS_SIZE + 20, 780);
+        this.pauseButton.mousePressed(() => {
+          this.isPaused = !this.isPaused;
+        });
+
+        this.resetButton = createButton('Reset');
+        this.resetButton.position(this.CANVAS_SIZE + 20, 810);
+        this.resetButton.mousePressed(()=> {
+          this.earthAngle = 0;
+          this.moonAngle = 0;
+          this.animationFrame = 0;
+
+          // Reset all Sliders to deafult values
+
+          this.customPlanets = [];
+
+          this.starCountInput.value('100');
+
+          this.isPaused = false;
+          this.STAR_COUNT = 100;
+          this.generateStars();
+        })
 
 
         this.generateStars();
@@ -257,19 +297,25 @@ class SolarSystem
      *---------------------------------------------------------*/
     update()
     {
-        this.earthAngle += this.EARTH_ORBIT_SPEED;
-        this.moonAngle += this.MOON_ORBIT_SPEED;
-        this.EARTH_ORBIT_RADIUS = this.earthDistanceSlider.value();
-        this.EARTH_ROTATION_SPEED = this.earthRotationSpeedSlider.value();
-        this.MOON_ORBIT_RADIUS = this.moonDistanceSlider.value();
-        this.MOON_ROTATION_SPEED = this.moonRotationSpeedSlider.value();
-
-        for (let planet of this.cutomPlanets) {
-          planet.angle +=orbitSpeed;
-          if (planet.hasMoon) {
-            planet.moon.angle += planet.moon.orbitSpeed;
-          }
+      if (this.isPaused){
+          return; // Don't update anything
         }
+      this.animationFrame++;
+      this.earthAngle += this.EARTH_ORBIT_SPEED;
+      this.moonAngle += this.MOON_ORBIT_SPEED;
+      this.EARTH_ORBIT_RADIUS = this.earthDistanceSlider.value();
+      this.EARTH_ROTATION_SPEED = this.earthRotationSpeedSlider.value();
+      this.MOON_ORBIT_RADIUS = this.moonDistanceSlider.value();
+      this.MOON_ROTATION_SPEED = this.moonRotationSpeedSlider.value();
+
+      for (let planet of this.customPlanets) {
+        planet.angle += planet.orbitSpeed;
+        if (planet.hasMoon) {
+            planet.moon.angle += planet.moon.orbitSpeed;
+        }
+      }
+
+        
     }
 
     /*---------------------------------------------------------
@@ -281,14 +327,16 @@ class SolarSystem
      *---------------------------------------------------------*/
     drawScene()
     {
-        console.log(this.earthAngle);
-        console.log(this.moonAngle);
+        //console.log(this.earthAngle);
+        //console.log(this.moonAngle);
 
         background(0);
+        ambientLight(255, 255, 255);
         this.drawStars();
         this.drawSun();
         this.drawEarth();
-        this.drawMoon()
+        this.drawMoon();
+        this.drawCustomPlanets();
     }
 
     generateStars()
@@ -373,7 +421,7 @@ class SolarSystem
         translate(earthX, earthY, 0);
 
         // --- Tilt and rotate the Earth around its axis ---
-        rotateY(frameCount * this.EARTH_ROTATION_SPEED);
+        rotateY(this.animationFrame * this.EARTH_ROTATION_SPEED);
 
         // --- Safe texture handling ---
         if (this.earthTexture && this.earthTexture.width > 0)
@@ -408,7 +456,7 @@ class SolarSystem
         let moonX = cos(this.moonAngle) * this.MOON_ORBIT_RADIUS;
         let moonY = sin(this.moonAngle) * this.MOON_ORBIT_RADIUS;
         translate(moonX, moonY, 0)
-        rotateY(frameCount * this.MOON_ROTATION_SPEED);
+        rotateY(this.animationFrame * this.MOON_ROTATION_SPEED);
 
         // --- Safe texture handling ---
         if (this.moonTexture && this.moonTexture.width > 0)
@@ -434,6 +482,30 @@ class SolarSystem
     {
       for (let planet of this.customPlanets) {
         //Draw the planet
+                push();
+
+        // --- Calculate Earth’s orbit position around the Sun ---
+        let planetX = cos(planet.angle) * planet.orbitRadius;
+        let planetY = sin(planet.angle) * planet.orbitRadius;
+        translate(planetX, planetY, 0);
+
+        // --- Draw the planet as a sphere ---
+        noStroke();
+        ambientMaterial(planet.color);
+        sphere(planet.radius);
+
+        if (planet.hasMoon) {
+          let planetMoonX = cos(planet.moon.angle) * planet.moon.orbitRadius;
+          let planetMoonY = sin(planet.moon.angle) * planet.moon.orbitRadius;
+          translate(planetMoonX, planetMoonY, 0);
+          noStroke();
+          ambientMaterial(200);
+          sphere(planet.moon.radius);
+        }
+
+        
+
+        pop();
       }
     }
 
