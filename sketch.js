@@ -1,7 +1,7 @@
 /* 
  *  FILE          : SolarSystem.js
  *  PROJECT       : SENG-3040 – Assignment 3 (Solar System)
- *  PROGRAMMER    : Josh Horsley
+ *  PROGRAMMERS   : Josh Horsley, Josh Rice
  *  FIRST VERSION : 2025-11-24
  *  DESCRIPTION   :
  *    This file defines the SolarSystem class and encapsulates all 
@@ -109,7 +109,7 @@ class SolarSystem
             () => { console.log('Moon texture loaded successfully'); },
             () => {
                 console.log('Texture not found – using solid color fallback.');
-                this.moonTextureTexture = null;
+                this.moonTexture = null;
             }
         );
     }
@@ -126,7 +126,7 @@ class SolarSystem
     setup()
     {
         createCanvas(this.CANVAS_SIZE, this.CANVAS_SIZE, WEBGL);
-        this.EARTH_EARTH_ORBIT_RADIUS = 120;  // smaller orbit so Earth is close to center
+        this.EARTH_ORBIT_RADIUS = 120;  // smaller orbit so Earth is close to center
         this.EARTH_RADIUS = 20;   // slightly larger for visibility
 
         
@@ -146,7 +146,7 @@ class SolarSystem
         // Earth distance from the Sun slider
         this.earthDistanceLabel = createP('Earth Distance from Sun');
         this.earthDistanceLabel.position(this.CANVAS_SIZE + 20, 60);
-        this.earthDistanceSlider = createSlider(50, 350, this.EARTH_EARTH_ORBIT_RADIUS)
+        this.earthDistanceSlider = createSlider(50, 350, this.EARTH_ORBIT_RADIUS);
         this.earthDistanceSlider.position(this.CANVAS_SIZE + 20, 90);
         
         // Earth rotation speed slider
@@ -154,12 +154,14 @@ class SolarSystem
         this.earthRotationSpeedLabel.position(this.CANVAS_SIZE + 20, 110);
         this.earthRotationSpeedSlider = createSlider(0.00, 0.20, this.EARTH_ROTATION_SPEED, 0.001);
         this.earthRotationSpeedSlider.position(this.CANVAS_SIZE + 20, 140);
-
+        
+        // Moon Distance from Earth slider
         this.moonDistanceLabel = createP('Moon Distance from Earth');
         this.moonDistanceLabel.position(this.CANVAS_SIZE + 20, 170);
-        this.moonDistanceSlider = createSlider(25, 100, this.MOON_EARTH_ORBIT_RADIUS)
+        this.moonDistanceSlider = createSlider(25, 100, this.MOON_ORBIT_RADIUS);
         this.moonDistanceSlider.position(this.CANVAS_SIZE + 20, 200);
-
+        
+        // Moon rotation spped slider
         this.moonRotationSpeedLabel = createP('Moon Rotation Speed');
         this.moonRotationSpeedLabel.position( this.CANVAS_SIZE + 20, 230);
         this.moonRotationSpeedSlider = createSlider(0.00, 0.20, this.MOON_ROTATION_SPEED, 0.001);
@@ -218,7 +220,8 @@ class SolarSystem
         this.planetMoonOrbitSpeedLabel.position(this.CANVAS_SIZE + 20, 660);
         this.planetMoonOrbitSpeedSlider = createSlider(0.001, 0.1, 0.03, 0.001);
         this.planetMoonOrbitSpeedSlider.position(this.CANVAS_SIZE + 20, 690);
-
+        
+        // Quick Preset Checkboxes
         this.presetsLabel = createP('Quick Presets:');
         this.presetsLabel.position(this.CANVAS_SIZE + 20, 700);
 
@@ -227,6 +230,9 @@ class SolarSystem
         this.preset1Checkbox.changed(() => {
           if (this.preset1Checkbox.checked()) {
             
+            this.preset2Checkbox.checked(false);
+            this.preset3Checkbox.checked(false);
+            this.preset4Checkbox.checked(false);
             this.planetRadiusSlider.value(8);
             this.planetColorInput.value('#e2770dff');  
             this.planetOrbitSpeedSlider.value(0.020);
@@ -240,8 +246,12 @@ class SolarSystem
         this.preset2Checkbox.position(this.CANVAS_SIZE + 70, 740);
         this.preset2Checkbox.changed(() => {
           if (this.preset2Checkbox.checked()) {
+
+            this.preset1Checkbox.checked(false);
+            this.preset3Checkbox.checked(false);
+            this.preset4Checkbox.checked(false);
             this.planetRadiusSlider.value(15);
-            this.planetColorInput.value('#d46acfff');   // yellow-brown
+            this.planetColorInput.value('#d46acfff');  
             this.planetOrbitSpeedSlider.value(0.012);
             this.planetDistanceSlider.value(150);
             this.planetHasMoonCheckbox.checked(false);
@@ -253,8 +263,12 @@ class SolarSystem
         this.preset3Checkbox.position(this.CANVAS_SIZE + 120, 740);
         this.preset3Checkbox.changed(() => {
           if (this.preset3Checkbox.checked()) {
+
+            this.preset2Checkbox.checked(false);
+            this.preset1Checkbox.checked(false);
+            this.preset4Checkbox.checked(false);
             this.planetRadiusSlider.value(25);
-            this.planetColorInput.value('#E5C07B');   // pale gold banded look
+            this.planetColorInput.value('#E5C07B');   
             this.planetOrbitSpeedSlider.value(0.004);
             this.planetDistanceSlider.value(320);
             this.planetHasMoonCheckbox.checked(true);
@@ -270,8 +284,12 @@ class SolarSystem
         this.preset4Checkbox.position(this.CANVAS_SIZE + 170, 740);
         this.preset4Checkbox.changed(() => {
           if (this.preset4Checkbox.checked()) {
+
+            this.preset2Checkbox.checked(false);
+            this.preset3Checkbox.checked(false);
+            this.preset1Checkbox.checked(false);
             this.planetRadiusSlider.value(12);
-            this.planetColorInput.value('#B44A3F');   // red-rust
+            this.planetColorInput.value('#B44A3F');   
             this.planetOrbitSpeedSlider.value(0.009);
             this.planetDistanceSlider.value(200);
             this.planetHasMoonCheckbox.checked(true);
@@ -286,7 +304,6 @@ class SolarSystem
         // Create planet button
         this.createPlanetButton = createButton('Create Planet');
         this.createPlanetButton.position(this.CANVAS_SIZE + 20, 770);
-
         this.createPlanetButton.mousePressed(()=>{
 
           let newPlanet = {
@@ -311,7 +328,8 @@ class SolarSystem
           this.customPlanets.push(newPlanet);
           console.log('Planet created!', newPlanet);
         });
-
+        
+        // Remove planet button
         this.removePlanetButton = createButton('Remove Last Planet');
         this.removePlanetButton.position(this.CANVAS_SIZE + 20, 800);
 
@@ -323,13 +341,16 @@ class SolarSystem
           }
          
         });
-
+        
+        // Pause all rotation button
         this.pauseButton = createButton('Pause All Rotation');
         this.pauseButton.position(this.CANVAS_SIZE + 20, 820);
         this.pauseButton.mousePressed(() => {
           this.isPaused = !this.isPaused;
+          this.pauseButton.html(this.isPaused ? 'Resume Rotation' : 'Pause All Rotation');
         });
 
+        // Reset button
         this.resetButton = createButton('Reset');
         this.resetButton.position(this.CANVAS_SIZE + 20, 840);
         this.resetButton.mousePressed(()=> {
@@ -340,11 +361,26 @@ class SolarSystem
         // Reset all Sliders to default values
         // Earth defaults
         this.earthDistanceSlider.value(120);
-        this.earthRotationSpeedSlider.value(0.01);
+        this.earthRotationSpeedSlider.value(0.03);
 
         // Moon defaults
-        this.moonDistanceSlider.value(40);
-        this.moonRotationSpeedSlider.value(0.02);
+        this.moonDistanceSlider.value(50);
+        this.moonRotationSpeedSlider.value(0.00);
+        
+        // Slider defaults
+        this.planetRadiusSlider.value(15);
+        this.planetColorInput.value('#FF5500');
+        this.planetOrbitSpeedSlider.value(0.01);
+        this.planetDistanceSlider.value(250);
+        this.planetHasMoonCheckbox.checked(false);
+        this.planetMoonRadiusSlider.value(6);
+        this.planetMoonDistanceSlider.value(40);
+        this.planetMoonOrbitSpeedSlider.value(0.03);
+
+        this.preset1Checkbox.checked(false);
+        this.preset2Checkbox.checked(false);
+        this.preset3Checkbox.checked(false);
+        this.preset4Checkbox.checked(false);
 
         this.customPlanets = [];
 
@@ -355,10 +391,7 @@ class SolarSystem
         this.generateStars();
         })
 
-
         this.generateStars();
-
-
 
         noStroke();
         textureMode(NORMAL);
@@ -376,7 +409,8 @@ class SolarSystem
     {
       if (this.isPaused){
           return; // Don't update anything
-        }
+      }
+
       this.animationFrame++;
       this.earthAngle += this.EARTH_ORBIT_SPEED;
       this.moonAngle += this.MOON_ORBIT_SPEED;
@@ -416,6 +450,17 @@ class SolarSystem
         this.drawCustomPlanets();
     }
 
+        /*---------------------------------------------------------
+     *  FUNCTION      : generateStars
+     *  DESCRIPTION   :
+     *    Populates the internal star list with randomly positioned
+     *    background stars. Stars are placed in 3D space around the
+     *    origin, avoiding a small radius near the Sun so the center
+     *    remains visually clear. This function is called at setup
+     *    time and whenever the star count is updated.
+     *  PARAMETERS    : None
+     *  RETURNS       : None
+     *---------------------------------------------------------*/
     generateStars()
     {
       this.stars = [];
@@ -520,7 +565,17 @@ class SolarSystem
         pop();
     }
 
-        drawMoon()
+        /*---------------------------------------------------------
+     *  FUNCTION      : drawMoon
+     *  DESCRIPTION   :
+     *    Renders the Moon orbiting the Earth and optionally 
+     *    rotating on its own axis depending on the configured 
+     *    rotation speed. Uses a texture if available, otherwise 
+     *    falls back to a solid grey material.
+     *  PARAMETERS    : None
+     *  RETURNS       : None
+     *---------------------------------------------------------*/
+    drawMoon()
     {
         push();
 
@@ -555,13 +610,24 @@ class SolarSystem
         pop();
     }
 
+        /*---------------------------------------------------------
+     *  FUNCTION      : drawCustomPlanets
+     *  DESCRIPTION   :
+     *    Renders all user-created custom planets and their moons.
+     *    Each planet orbits the Sun using its own orbit radius 
+     *    and speed. If a planet has a moon, the moon is drawn 
+     *    orbiting around its parent planet. All custom planets 
+     *    use solid-colour ambient materials.
+     *  PARAMETERS    : None
+     *  RETURNS       : None
+     *---------------------------------------------------------*/
     drawCustomPlanets()
     {
       for (let planet of this.customPlanets) {
         //Draw the planet
-                push();
+        push();
 
-        // --- Calculate Earth’s orbit position around the Sun ---
+        // --- Calculate the planet's orbit position around the Sun ---
         let planetX = cos(planet.angle) * planet.orbitRadius;
         let planetY = sin(planet.angle) * planet.orbitRadius;
         translate(planetX, planetY, 0);
@@ -580,9 +646,8 @@ class SolarSystem
           sphere(planet.moon.radius);
         }
 
-        
-
         pop();
+
       }
     }
 
