@@ -64,6 +64,11 @@ class SolarSystem
         // Custom Planets GUI
         this.customPlanets = [];
 
+        this.preset1Checkbox = null;
+        this.preset2Checkbox = null;
+        this.preset3Checkbox = null;
+        this.preset4Checkbox = null;
+
         this.planetRadiusSlider = null;
         this.planetColorInput = null;
         this.planetOrbitSpeedSlider = null;
@@ -164,6 +169,7 @@ class SolarSystem
         // Section header
         this.planetSectionLabel = createP('--- Create Custom Planet ---');
         this.planetSectionLabel.position(this.CANVAS_SIZE + 20, 280);
+        
 
         // Planet radius
         this.planetRadiusLabel = createP('Planet Radius');
@@ -213,9 +219,73 @@ class SolarSystem
         this.planetMoonOrbitSpeedSlider = createSlider(0.001, 0.1, 0.03, 0.001);
         this.planetMoonOrbitSpeedSlider.position(this.CANVAS_SIZE + 20, 690);
 
-        // Create button
+        this.presetsLabel = createP('Quick Presets:');
+        this.presetsLabel.position(this.CANVAS_SIZE + 20, 700);
+
+        this.preset1Checkbox = createCheckbox('1', false);
+        this.preset1Checkbox.position(this.CANVAS_SIZE + 20, 740);
+        this.preset1Checkbox.changed(() => {
+          if (this.preset1Checkbox.checked()) {
+            
+            this.planetRadiusSlider.value(8);
+            this.planetColorInput.value('#e2770dff');  
+            this.planetOrbitSpeedSlider.value(0.020);
+            this.planetDistanceSlider.value(90);
+            this.planetHasMoonCheckbox.checked(false);
+
+          }
+        });
+
+        this.preset2Checkbox = createCheckbox('2', false);
+        this.preset2Checkbox.position(this.CANVAS_SIZE + 70, 740);
+        this.preset2Checkbox.changed(() => {
+          if (this.preset2Checkbox.checked()) {
+            this.planetRadiusSlider.value(15);
+            this.planetColorInput.value('#d46acfff');   // yellow-brown
+            this.planetOrbitSpeedSlider.value(0.012);
+            this.planetDistanceSlider.value(150);
+            this.planetHasMoonCheckbox.checked(false);
+
+          }
+        });
+        
+        this.preset3Checkbox = createCheckbox('3', false);
+        this.preset3Checkbox.position(this.CANVAS_SIZE + 120, 740);
+        this.preset3Checkbox.changed(() => {
+          if (this.preset3Checkbox.checked()) {
+            this.planetRadiusSlider.value(25);
+            this.planetColorInput.value('#E5C07B');   // pale gold banded look
+            this.planetOrbitSpeedSlider.value(0.004);
+            this.planetDistanceSlider.value(320);
+            this.planetHasMoonCheckbox.checked(true);
+
+            
+            this.planetMoonRadiusSlider.value(8);
+            this.planetMoonDistanceSlider.value(45);
+            this.planetMoonOrbitSpeedSlider.value(0.02);
+          }
+        });
+
+        this.preset4Checkbox = createCheckbox('4', false);
+        this.preset4Checkbox.position(this.CANVAS_SIZE + 170, 740);
+        this.preset4Checkbox.changed(() => {
+          if (this.preset4Checkbox.checked()) {
+            this.planetRadiusSlider.value(12);
+            this.planetColorInput.value('#B44A3F');   // red-rust
+            this.planetOrbitSpeedSlider.value(0.009);
+            this.planetDistanceSlider.value(200);
+            this.planetHasMoonCheckbox.checked(true);
+
+            
+            this.planetMoonRadiusSlider.value(4);
+            this.planetMoonDistanceSlider.value(30);
+            this.planetMoonOrbitSpeedSlider.value(0.03);
+                      }
+        });
+
+        // Create planet button
         this.createPlanetButton = createButton('Create Planet');
-        this.createPlanetButton.position(this.CANVAS_SIZE + 20, 720);
+        this.createPlanetButton.position(this.CANVAS_SIZE + 20, 770);
 
         this.createPlanetButton.mousePressed(()=>{
 
@@ -243,7 +313,7 @@ class SolarSystem
         });
 
         this.removePlanetButton = createButton('Remove Last Planet');
-        this.removePlanetButton.position(this.CANVAS_SIZE + 20, 750);
+        this.removePlanetButton.position(this.CANVAS_SIZE + 20, 800);
 
         this.removePlanetButton.mousePressed(() => {
 
@@ -255,27 +325,34 @@ class SolarSystem
         });
 
         this.pauseButton = createButton('Pause All Rotation');
-        this.pauseButton.position(this.CANVAS_SIZE + 20, 780);
+        this.pauseButton.position(this.CANVAS_SIZE + 20, 820);
         this.pauseButton.mousePressed(() => {
           this.isPaused = !this.isPaused;
         });
 
         this.resetButton = createButton('Reset');
-        this.resetButton.position(this.CANVAS_SIZE + 20, 810);
+        this.resetButton.position(this.CANVAS_SIZE + 20, 840);
         this.resetButton.mousePressed(()=> {
-          this.earthAngle = 0;
-          this.moonAngle = 0;
-          this.animationFrame = 0;
+        this.earthAngle = 0;
+        this.moonAngle = 0;
+        this.animationFrame = 0;
 
-          // Reset all Sliders to deafult values
+        // Reset all Sliders to default values
+        // Earth defaults
+        this.earthDistanceSlider.value(120);
+        this.earthRotationSpeedSlider.value(0.01);
 
-          this.customPlanets = [];
+        // Moon defaults
+        this.moonDistanceSlider.value(40);
+        this.moonRotationSpeedSlider.value(0.02);
 
-          this.starCountInput.value('100');
+        this.customPlanets = [];
 
-          this.isPaused = false;
-          this.STAR_COUNT = 100;
-          this.generateStars();
+        this.starCountInput.value('100');
+
+        this.isPaused = false;
+        this.STAR_COUNT = 100;
+        this.generateStars();
         })
 
 
