@@ -37,6 +37,7 @@ class SolarSystem
         this.EARTH_ORBIT_SPEED = 0.01;
         this.EARTH_ROTATION_SPEED = 0.03;
         this.MOON_RADIUS = 6;
+        this.MOON_ROTATION_SPEED = 0.00;
         this.MOON_ORBIT_RADIUS = 50;
         this.MOON_ORBIT_SPEED = 0.02;
 
@@ -46,10 +47,31 @@ class SolarSystem
         this.moonTexture = null;
         this.earthAngle = 0.0;
         this.moonAngle = 0.0;
+
+        // GUI Elements
         this.starCountInput = null;
-        this.earthDistanceLable = null;
+        this.earthDistanceLabel = null;
         this.updateStarsButton = null;
         this.earthDistanceSlider = null;
+        this.earthRotationSpeedLabel = null;
+        this.earthRotationSpeedSlider = null;
+
+        this.moonDistanceLabel = null;
+        this.moonDistanceSlider = null;
+
+        // Custom Planets GUI
+        this.customPlanets = [];
+
+        this.planetRadiusSlider = null;
+        this.planetColorInput = null;
+        this.planetOrbitSpeedSlider = null;
+        this.planetDistanceSlider = null;
+        this.planetHasMoonCheckbox = null;
+        this.planetMoonRadiusSlider = null;
+        this.planetMoonDistanceSlider = null;
+        this.planetMoonOrbitSpeedSlider = null;
+        this.createPlanetButton = null;
+
     }
 
     /*---------------------------------------------------------
@@ -111,12 +133,111 @@ class SolarSystem
 
         });
 
-        this.earthDistanceLable = createP('Earth Distance from Sun');
-        this.earthDistanceLable.position(this.CANVAS_SIZE +20, 60);
+        // Earth distance from the Sun slider
+        this.earthDistanceLabel = createP('Earth Distance from Sun');
+        this.earthDistanceLabel.position(this.CANVAS_SIZE + 20, 60);
         this.earthDistanceSlider = createSlider(50, 350, this.EARTH_EARTH_ORBIT_RADIUS)
         this.earthDistanceSlider.position(this.CANVAS_SIZE + 20, 90);
-
         
+        // Earth rotation speed slider
+        this.earthRotationSpeedLabel = createP('Earth Rotation Speed');
+        this.earthRotationSpeedLabel.position(this.CANVAS_SIZE + 20, 110);
+        this.earthRotationSpeedSlider = createSlider(0.00, 0.20, this.EARTH_ROTATION_SPEED, 0.001);
+        this.earthRotationSpeedSlider.position(this.CANVAS_SIZE + 20, 140);
+
+        this.moonDistanceLabel = createP('Moon Distance from Earth');
+        this.moonDistanceLabel.position(this.CANVAS_SIZE + 20, 170);
+        this.moonDistanceSlider = createSlider(25, 100, this.MOON_EARTH_ORBIT_RADIUS)
+        this.moonDistanceSlider.position(this.CANVAS_SIZE + 20, 200);
+
+        this.moonRotationSpeedLabel = createP('Moon Rotation Speed');
+        this.moonRotationSpeedLabel.position( this.CANVAS_SIZE + 20, 230);
+        this.moonRotationSpeedSlider = createSlider(0.00, 0.20, this.MOON_ROTATION_SPEED, 0.001);
+        this.moonRotationSpeedSlider.position(this.CANVAS_SIZE + 20, 260);
+
+        // ---- PLANET CREATION GUI ----
+        // Section header
+        this.planetSectionLabel = createP('--- Create Custom Planet ---');
+        this.planetSectionLabel.position(this.CANVAS_SIZE + 20, 280);
+
+        // Planet radius
+        this.planetRadiusLabel = createP('Planet Radius');
+        this.planetRadiusLabel.position(this.CANVAS_SIZE + 20, 310);
+        this.planetRadiusSlider = createSlider(5, 30, 15);
+        this.planetRadiusSlider.position(this.CANVAS_SIZE + 20, 340);
+
+        // Planet color
+        this.planetColorLabel = createP('Planet Color (hex)');
+        this.planetColorLabel.position(this.CANVAS_SIZE + 20, 360);
+        this.planetColorInput = createInput('#FF5500');
+        this.planetColorInput.position(this.CANVAS_SIZE + 20, 400);
+
+        // Planet orbit speed
+        this.planetOrbitSpeedLabel = createP('Planet Orbit Speed');
+        this.planetOrbitSpeedLabel.position(this.CANVAS_SIZE + 20, 420);
+        this.planetOrbitSpeedSlider = createSlider(0.001, 0.05, 0.01, 0.001);
+        this.planetOrbitSpeedSlider.position(this.CANVAS_SIZE + 20, 450);
+
+        // Planet distance from sun
+        this.planetDistanceLabel = createP('Planet Distance from Sun');
+        this.planetDistanceLabel.position(this.CANVAS_SIZE + 20, 470);
+        this.planetDistanceSlider = createSlider(100, 400, 250);
+        this.planetDistanceSlider.position(this.CANVAS_SIZE + 20, 500);
+
+        // Has moon checkbox
+        this.planetHasMoonLabel = createP('Planet Has Moon?');
+        this.planetHasMoonLabel.position(this.CANVAS_SIZE + 20, 510);
+        this.planetHasMoonCheckbox = createCheckbox('', false);
+        this.planetHasMoonCheckbox.position(this.CANVAS_SIZE + 20, 550);
+
+        // Moon radius
+        this.planetMoonRadiusLabel = createP('Moon Radius');
+        this.planetMoonRadiusLabel.position(this.CANVAS_SIZE + 20, 560);
+        this.planetMoonRadiusSlider = createSlider(3, 15, 6);
+        this.planetMoonRadiusSlider.position(this.CANVAS_SIZE + 20, 590);
+
+        // Moon distance
+        this.planetMoonDistanceLabel = createP('Moon Distance');
+        this.planetMoonDistanceLabel.position(this.CANVAS_SIZE + 20, 610);
+        this.planetMoonDistanceSlider = createSlider(20, 80, 40);
+        this.planetMoonDistanceSlider.position(this.CANVAS_SIZE + 20, 640);
+
+        // Moon orbit speed
+        this.planetMoonOrbitSpeedLabel = createP('Moon Orbit Speed');
+        this.planetMoonOrbitSpeedLabel.position(this.CANVAS_SIZE + 20, 660);
+        this.planetMoonOrbitSpeedSlider = createSlider(0.001, 0.1, 0.03, 0.001);
+        this.planetMoonOrbitSpeedSlider.position(this.CANVAS_SIZE + 20, 690);
+
+        // Create button
+        this.createPlanetButton = createButton('Create Planet');
+        this.createPlanetButton.position(this.CANVAS_SIZE + 20, 720);
+
+        this.createPlanetButton.mousePressed(()=>{
+
+          let newPlanet = {
+            radius: this.planetRadiusSlider.value(),
+            color: this.planetColorInput.value(),
+            orbitSpeed: this.planetOrbitSpeedSlider.value(),
+            orbitRadius: this.planetDistanceSlider.value(),
+            angle: 0, 
+            hasMoon: this.planetHasMoonCheckbox.checked(),
+            moon: null 
+          };
+
+          if (newPlanet.hasMoon) {
+            newPlanet.moon = {
+              radius: this.planetMoonRadiusSlider.value(),
+              orbitRadius: this.planetMoonDistanceSlider.value(),
+              orbitSpeed: this.planetMoonOrbitSpeedSlider.value(),
+              angle: 0
+            };
+          }
+
+          this.customPlanets.push(newPlanet);
+          console.log('Planet created!', newPlanet);
+
+        });
+
 
         this.generateStars();
 
@@ -139,6 +260,16 @@ class SolarSystem
         this.earthAngle += this.EARTH_ORBIT_SPEED;
         this.moonAngle += this.MOON_ORBIT_SPEED;
         this.EARTH_ORBIT_RADIUS = this.earthDistanceSlider.value();
+        this.EARTH_ROTATION_SPEED = this.earthRotationSpeedSlider.value();
+        this.MOON_ORBIT_RADIUS = this.moonDistanceSlider.value();
+        this.MOON_ROTATION_SPEED = this.moonRotationSpeedSlider.value();
+
+        for (let planet of this.cutomPlanets) {
+          planet.angle +=orbitSpeed;
+          if (planet.hasMoon) {
+            planet.moon.angle += planet.moon.orbitSpeed;
+          }
+        }
     }
 
     /*---------------------------------------------------------
@@ -227,7 +358,7 @@ class SolarSystem
      *  FUNCTION      : drawEarth
      *  DESCRIPTION   :
      *    Renders an Earth sphere orbiting the Sun and rotating
-     *    on its own axis.  If the texture is unavailable, a 
+     *    on its own axis.  If the texture is unavaiLabel, a 
      *    solid blue fill is used instead.
      *  PARAMETERS    : None
      *  RETURNS       : None
@@ -277,6 +408,7 @@ class SolarSystem
         let moonX = cos(this.moonAngle) * this.MOON_ORBIT_RADIUS;
         let moonY = sin(this.moonAngle) * this.MOON_ORBIT_RADIUS;
         translate(moonX, moonY, 0)
+        rotateY(frameCount * this.MOON_ROTATION_SPEED);
 
         // --- Safe texture handling ---
         if (this.moonTexture && this.moonTexture.width > 0)
@@ -296,6 +428,13 @@ class SolarSystem
         sphere(this.MOON_RADIUS);
 
         pop();
+    }
+
+    drawCustomPlanets()
+    {
+      for (let planet of this.customPlanets) {
+        //Draw the planet
+      }
     }
 
 
